@@ -390,7 +390,7 @@ FILL_MEMORY_1:
     rts
 
 DUMP_MEMORY:
-    lea %fp@(CMND_BUFR),%a2
+    lea %fp@(CMND_BUFR + 1),%a2
     bsrw PARSE_PARM
     moveal %d0,%a3
     bsrw PARSE_PARM
