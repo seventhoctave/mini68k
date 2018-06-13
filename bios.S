@@ -159,14 +159,14 @@ PROMPT:
     .asciz ">"
 
 DUART_INT:
-	  moveml %d0-%d1/%a0, %sp@-
-	  moveb (DUART_ISR).w, %d0
-	  andb %fp@(IMR_IMAGE),%d0
-	  moveb %d0,%fp@(ISR_IMAGE)
-	  btst #CTRRDY_INT_BIT,%d0
-	  beqs DUART_INT_1
-	  moveal %fp@(CTRRDY_IV),%a0
-	  jsr %a0@
+    moveml %d0-%d1/%a0, %sp@-
+    moveb (DUART_ISR).w, %d0
+    andb %fp@(IMR_IMAGE),%d0
+    moveb %d0,%fp@(ISR_IMAGE)
+    btst #CTRRDY_INT_BIT,%d0
+    beqs DUART_INT_1
+    moveal %fp@(CTRRDY_IV),%a0
+    jsr %a0@
 
 DUART_INT_1:
     btst #INPORT_INT_BIT,%fp@(ISR_IMAGE)
@@ -301,13 +301,13 @@ JSR_TO:
     rts
 
 DOWNLOAD:
-	  lea %fp@(CMND_BUFR),%a2
-	  moveb %a2@+,%d0
-	  cmpb #'2',%d0
-	  bnew DOWNLOAD_X
-	  movew #2,%d4
-	  bsrw HEX2INT
-	  movel %d0,%d6
+    lea %fp@(CMND_BUFR),%a2
+    moveb %a2@+,%d0
+    cmpb #'2',%d0
+    bnew DOWNLOAD_X
+    movew #2,%d4
+    bsrw HEX2INT
+    movel %d0,%d6
     movel %d0,%d7
     subqw #4,%d6
     movew #6,%d4
@@ -330,80 +330,131 @@ DOWNLOAD_1:
 DOWNLOAD_2:
     movew #2,%d4
     bsrw HEX2INT
-	  addb %d0,%d7
-	  addqb #1,%d7
-	  beqs DOWNLOAD_X
-	  moveb #'X',%d2
-	  bsrw PUTC
+    addb %d0,%d7
+    addqb #1,%d7
+    beqs DOWNLOAD_X
+    moveb #'X',%d2
+    bsrw PUTC
 DOWNLOAD_X:
-	  rts
+    rts
 
 HEX2INT:
-	  clrl %d0
+    clrl %d0
 HEX2INT_1:
-	  moveb %a2@+,%d1
-	  orib #32,%d1
-	  subib #48,%d1
-	  bmis HEX2INT_X
-
-	  cmpb #9,%d1
-	  bles HEX2INT_2
-
-	  subib #39,%d1
+    moveb %a2@+,%d1
+    orib #32,%d1
+    subib #48,%d1
     bmis HEX2INT_X
 
-	  cmpb #15,%d1
-	  bgts HEX2INT_X
+    cmpb #9,%d1
+    bles HEX2INT_2
+
+    subib #39,%d1
+    bmis HEX2INT_X
+
+    cmpb #15,%d1
+    bgts HEX2INT_X
 
 HEX2INT_2:
-	  lsll #4,%d0
-	  orb %d1,%d0
-	  subqw #1,%d4
-	  bnes HEX2INT_1
+    lsll #4,%d0
+    orb %d1,%d0
+    subqw #1,%d4
+    bnes HEX2INT_1
 HEX2INT_X:
-	  rts
+    rts
 
 PARSE_PARM:
-	  movew #' ',%d0
+    movew #' ',%d0
 PARSE_PARM_1:
-	  cmpb %a2@,%d0
-	  bnes PARSE_PARM_2
-	  addql #1,%a2
-	  bras PARSE_PARM_1
+    cmpb %a2@,%d0
+    bnes PARSE_PARM_2
+    addql #1,%a2
+    bras PARSE_PARM_1
 PARSE_PARM_2:
-	  movew #8,%d4
-	  bsrw HEX2INT
-	  rts
+    movew #8,%d4
+    bsrw HEX2INT
+    rts
 
-DUMP_MEMORY: rts
+FILL_MEMORY:
+    lea %fp@(CMND_BUFR + 1),%a2
+    bsrw PARSE_PARM
+    moveal %d0,%a3
+    bsrw PARSE_PARM
+    movew %d0,%d7
+    bsrw PARSE_PARM
+    movew %d0,%d6
+FILL_MEMORY_1:
+    moveb %d7,%a3@+
+    subqw #1,%d6
+    bnes FILL_MEMORY_1
+    rts
 
-FILL_MEMORY: rts
+DUMP_MEMORY:
+    lea %fp@(CMND_BUFR),%a2
+    bsrw PARSE_PARM
+    moveal %d0,%a3
+    bsrw PARSE_PARM
+    movew %d0,%d7
+    subqw #1,%d7
+DUMP_MEMORY_1:
+    movel %a3,%d4
+    movew #3,%d5
+    bsrw PRINT_HEX
+    movew #15,%d6
+DUMP_MEMORY_2:
+    moveb #' ',%d2
+    bsrw PUTC
+    moveb %a3@+,%d4
+    movew #1,%d5
+    bsrw PRINT_HEX
+    dbf %d6,DUMP_MEMORY_2
+    moveb #ASCII_CR,%d2
+    bsrw PUTC
+    dbf %d7,DUMP_MEMORY_1
+    rts
+
+DIGIT_TABLE:
+    .ascii "0123456789ABCDEF"
+
+PRINT_HEX:
+    lslw #3,%d5
+    rorl %d5,%d4
+    lsrw #2,%d5
+    subqw #1,%d5
+PRINT_HEX_1:
+    roll #4,%d4
+    movew %d4,%d2
+    andiw #15,%d2
+    moveb %pc@(DIGIT_TABLE,%d2:w),%d2
+    bsrw PUTC
+    dbf %d5,PRINT_HEX_1
+    rts
 
 ENABLE_ISR:
-	  movew %d1,%d0
-	  lslw #2,%d0
-	  lea %fp@(TXRDYA_IV,%d0:w),%a0
-	  movel %a1,%a0@
-	  moveb #1,%d0
-	  lslb %d1,%d0
-	  orb %d0,%fp@(IMR_IMAGE)
-	  moveb %fp@(IMR_IMAGE),(DUART_IMR).w
-	  rts
+    movew %d1,%d0
+    lslw #2,%d0
+    lea %fp@(TXRDYA_IV,%d0:w),%a0
+    movel %a1,%a0@
+    moveb #1,%d0
+    lslb %d1,%d0
+    orb %d0,%fp@(IMR_IMAGE)
+    moveb %fp@(IMR_IMAGE),(DUART_IMR).w
+    rts
 
 DISABLE_ISR:
-	  moveb #1,%d0
-	  lslb %d1,%d0
-	  notb %d0
-	  andb %d0,%fp@(IMR_IMAGE)
-	  moveb %fp@(IMR_IMAGE),(DUART_IMR).w
-	  rts
+    moveb #1,%d0
+    lslb %d1,%d0
+    notb %d0
+    andb %d0,%fp@(IMR_IMAGE)
+    moveb %fp@(IMR_IMAGE),(DUART_IMR).w
+    rts
 
 BIOS_CALL:
-	  moveal #BIOS_CALL_TABLE,%a0
-	  lslw #2,%d0
-	  moveal %a0@(0,%d0:w),%a0
-	  jsr %a0@
-	  rte
+    moveal #BIOS_CALL_TABLE,%a0
+    lslw #2,%d0
+    moveal %a0@(0,%d0:w),%a0
+    jsr %a0@
+    rte
 
 BIOS_CALL_TABLE:
     .ds.l 1,GETC
@@ -411,6 +462,8 @@ BIOS_CALL_TABLE:
     .ds.l 1,GETS
     .ds.l 1,PUTS
     .ds.l 1
-    .ds.l 1
+    .ds.l 1,PRINT_HEX
     .ds.l 1,ENABLE_ISR
     .ds.l 1,DISABLE_ISR
+
+
