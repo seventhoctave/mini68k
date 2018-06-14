@@ -3,4 +3,4 @@ all: bios.S
 	m68k-unknown-elf-ld -Ttext 0x00000000 --oformat binary -o bios.bin bios.o
 
 burn-rom: bios.bin
-	minipro -w bios.bin -s -p "MBM27256 @DIP28"
+	minipro -w bios.bin -s -p "SST27SF512 @DIP28"

@@ -148,13 +148,13 @@ COMMAND_LOOP_4:
     bras COMMAND_LOOP
 
 MENU_STR:
-    .ascii "D ADRS COUNT       - Dump Memory \r"
-    .ascii "F ADRS VALUE COUNT - Fill Memory \r"
-    .ascii "J ADRS             - JSR To Adrs \r"
-    .ascii "S2xxx              - Download Hex Record \r"
-    .ascii "?                  - Menu \r\0"
+    .ascii "D ADRS COUNT       - Dump Memory\r\n"
+    .ascii "F ADRS VALUE COUNT - Fill Memory\r\n"
+    .ascii "J ADRS             - JSR To Adrs\r\n"
+    .ascii "S2xxx              - Download Hex Record\r\n"
+    .ascii "?                  - Menu\r\n\0"
 HEADER:
-    .asciz "Mini 68008 BIOS \r"
+    .asciz "Mini 68008 BIOS\r\n"
 PROMPT:
     .asciz ">"
 
@@ -409,6 +409,8 @@ DUMP_MEMORY_2:
     bsrw PRINT_HEX
     dbf %d6,DUMP_MEMORY_2
     moveb #ASCII_CR,%d2
+    bsrw PUTC
+    moveb #ASCII_LF,%d2
     bsrw PUTC
     dbf %d7,DUMP_MEMORY_1
     rts
