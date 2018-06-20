@@ -31,6 +31,9 @@ LIBS:opto
 LIBS:atmel
 LIBS:contrib
 LIBS:valves
+LIBS:Lattice
+LIBS:MAX708
+LIBS:Oscillators
 LIBS:mini68k-cache
 EELAYER 25 0
 EELAYER END
@@ -904,4 +907,50 @@ F 3 "" H 9950 4700 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	9900 4700 9950 4700
+$Comp
+L GAL16V8 U?
+U 1 1 5B29ACED
+P 6050 2700
+F 0 "U?" H 5700 3350 50  0000 L CNN
+F 1 "GAL16V8" H 6100 3350 50  0000 L CNN
+F 2 "" H 6050 2700 50  0001 C CNN
+F 3 "" H 6050 2700 50  0001 C CNN
+	1    6050 2700
+	1    0    0    -1  
+$EndComp
+Text GLabel 5500 2300 0    60   Input ~ 0
+A16
+Text GLabel 5500 2400 0    60   Input ~ 0
+A15
+Text GLabel 1250 3850 0    60   Output ~ 0
+AS
+Text GLabel 5500 2500 0    60   Input ~ 0
+AS
+Text GLabel 1250 3950 0    60   Output ~ 0
+DS
+Text GLabel 5500 2600 0    60   Input ~ 0
+DS
+Wire Wire Line
+	1250 3850 1300 3850
+Wire Wire Line
+	1250 3950 1300 3950
+Wire Wire Line
+	5500 2300 5550 2300
+Wire Wire Line
+	5500 2400 5550 2400
+Wire Wire Line
+	5500 2500 5550 2500
+Wire Wire Line
+	5500 2600 5550 2600
+$Comp
+L TCXO-14 X?
+U 1 1 5B29FF33
+P 4500 1350
+F 0 "X?" H 4300 1600 50  0000 L CNN
+F 1 "TCXO-14" H 4550 1100 50  0000 L CNN
+F 2 "Oscillators:Oscillator_DIP-14" H 4950 1000 50  0001 C CNN
+F 3 "" H 4400 1350 50  0001 C CNN
+	1    4500 1350
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
