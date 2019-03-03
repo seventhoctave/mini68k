@@ -1,0 +1,46 @@
+Name     U2 ;
+PartNo   00 ;
+Date     3/22/2016 ;
+Revision 01 ;
+Designer Mike Christle ;
+Company  Christle Engineering ;
+Assembly Mini 68008 ;
+Location U2 ;
+Device   g16v8ma ;
+
+/* *************** INPUT PINS *********************/
+PIN  1 = DTR;
+PIN  2 = A16;
+PIN  3 = A15;
+PIN  4 = AS;
+PIN  5 = DS;
+PIN  6 = FC0;
+PIN  7 = RW;
+PIN  8 = FC1;
+PIN  9 = FC2;
+
+/* *************** OUTPUT PINS *********************/
+PIN 12 = HALT;
+PIN 13 = DTACK;
+PIN 14 = ROMOE;
+PIN 15 = RAMWE;
+PIN 16 = RAMOE;
+PIN 17 = RESET;
+PIN 18 = IACK;
+PIN 19 = URTCS;
+
+RESET = DTR;
+RESET.OE = !DTR;
+
+HALT = DTR;
+
+DTACK    = DS;
+DTACK.OE = DTR & !DS & !A15;
+
+!IACK = DTR & !DS & FC2 & FC1 & FC0;
+
+!ROMOE = DTR & !DS &  RW & !A16 & !A15; /* $00000 */
+!RAMOE = DTR & !DS &  RW &  A16 & !A15; /* $10000 */
+!RAMWE = DTR & !DS & !RW &  A16 & !A15; /* $10000 */
+
+!URTCS = DTR & !DS & !FC1 & FC0 & A16 &  A15; /* $18000 */
