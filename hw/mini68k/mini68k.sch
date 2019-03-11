@@ -245,7 +245,7 @@ U 1 1 5B2872AC
 P 1850 5050
 F 0 "SW1" H 1850 5220 50  0000 C CNN
 F 1 "SW_SPDT" H 1850 4850 50  0000 C CNN
-F 2 "Buttons_Switches_THT:SW_CuK_JS202011CQN_DPDT_Straight" H 1850 5050 50  0001 C CNN
+F 2 "Button_Switch_THT:SW_E-Switch_EG1271_DPDT" H 1850 5050 50  0001 C CNN
 F 3 "" H 1850 5050 50  0001 C CNN
 	1    1850 5050
 	1    0    0    -1  
@@ -1128,7 +1128,7 @@ U 1 1 5B2B5FB4
 P 4000 2600
 F 0 "J4" H 4000 2900 50  0000 C CNN
 F 1 "FTDI header COM1" H 4000 2200 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Horizontal" H 4000 2600 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical" H 4000 2600 50  0001 C CNN
 F 3 "" H 4000 2600 50  0001 C CNN
 	1    4000 2600
 	-1   0    0    1   
@@ -1530,7 +1530,7 @@ U 1 1 5C86A947
 P 5400 1800
 F 0 "J5" H 5400 2100 50  0000 C CNN
 F 1 "FTDI header COM2" H 5400 1400 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Horizontal" H 5400 1800 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical" H 5400 1800 50  0001 C CNN
 F 3 "" H 5400 1800 50  0001 C CNN
 	1    5400 1800
 	-1   0    0    1   
