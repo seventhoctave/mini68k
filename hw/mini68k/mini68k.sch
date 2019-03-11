@@ -748,12 +748,12 @@ Wire Wire Line
 $Comp
 L mini68k-rescue:TCXO-14 X1
 U 1 1 5B29FF33
-P 4400 3150
-F 0 "X1" H 4200 3400 50  0000 L CNN
-F 1 "TCXO-14" H 4450 2900 50  0000 L CNN
-F 2 "Oscillators:Oscillator_DIP-14" H 4850 2800 50  0001 C CNN
-F 3 "" H 4300 3150 50  0001 C CNN
-	1    4400 3150
+P 4350 3950
+F 0 "X1" H 4150 4200 50  0000 L CNN
+F 1 "TCXO-14" H 4400 3700 50  0000 L CNN
+F 2 "Oscillators:Oscillator_DIP-14" H 4800 3600 50  0001 C CNN
+F 3 "" H 4250 3950 50  0001 C CNN
+	1    4350 3950
 	1    0    0    -1  
 $EndComp
 Text GLabel 1200 2250 0    60   Output ~ 0
@@ -807,32 +807,32 @@ Text GLabel 1250 1050 0    60   Input ~ 0
 CLK
 Wire Wire Line
 	1250 1050 1300 1050
-Text GLabel 4750 3150 2    60   Output ~ 0
+Text GLabel 4700 3950 2    60   Output ~ 0
 CLK
 Wire Wire Line
-	4700 3150 4750 3150
+	4650 3950 4700 3950
 $Comp
 L power:GND #PWR017
 U 1 1 5B2A991F
-P 4400 3500
-F 0 "#PWR017" H 4400 3250 50  0001 C CNN
-F 1 "GND" H 4400 3350 50  0000 C CNN
-F 2 "" H 4400 3500 50  0001 C CNN
-F 3 "" H 4400 3500 50  0001 C CNN
-	1    4400 3500
+P 4350 4300
+F 0 "#PWR017" H 4350 4050 50  0001 C CNN
+F 1 "GND" H 4350 4150 50  0000 C CNN
+F 2 "" H 4350 4300 50  0001 C CNN
+F 3 "" H 4350 4300 50  0001 C CNN
+	1    4350 4300
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	4400 3450 4400 3500
+	4350 4250 4350 4300
 $Comp
 L power:VCC #PWR016
 U 1 1 5B2A9A2D
-P 4400 2750
-F 0 "#PWR016" H 4400 2600 50  0001 C CNN
-F 1 "VCC" H 4400 2900 50  0000 C CNN
-F 2 "" H 4400 2750 50  0001 C CNN
-F 3 "" H 4400 2750 50  0001 C CNN
-	1    4400 2750
+P 4350 3550
+F 0 "#PWR016" H 4350 3400 50  0001 C CNN
+F 1 "VCC" H 4350 3700 50  0000 C CNN
+F 2 "" H 4350 3550 50  0001 C CNN
+F 3 "" H 4350 3550 50  0001 C CNN
+	1    4350 3550
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -882,8 +882,8 @@ F 3 "" H 9000 3600 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	4400 2750 4400 2850
-NoConn ~ 4100 3150
+	4350 3550 4350 3650
+NoConn ~ 4050 3950
 Wire Wire Line
 	9000 900  9000 950 
 Wire Wire Line
@@ -1096,18 +1096,18 @@ Wire Wire Line
 $Comp
 L power:GND #PWR026
 U 1 1 5B2B5101
-P 6950 6300
-F 0 "#PWR026" H 6950 6050 50  0001 C CNN
-F 1 "GND" H 6950 6150 50  0000 C CNN
-F 2 "" H 6950 6300 50  0001 C CNN
-F 3 "" H 6950 6300 50  0001 C CNN
-	1    6950 6300
+P 4250 2850
+F 0 "#PWR026" H 4250 2600 50  0001 C CNN
+F 1 "GND" H 4250 2700 50  0000 C CNN
+F 2 "" H 4250 2850 50  0001 C CNN
+F 3 "" H 4250 2850 50  0001 C CNN
+	1    4250 2850
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	6900 6250 6950 6250
+	4200 2800 4250 2800
 Wire Wire Line
-	6950 6250 6950 6300
+	4250 2800 4250 2850
 $Comp
 L Device:C C9
 U 1 1 5B2B5613
@@ -1120,25 +1120,25 @@ F 3 "" H 5500 5100 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Connection ~ 5200 4950
-Text GLabel 6950 5850 2    60   Output ~ 0
+Text GLabel 4250 2400 2    60   Output ~ 0
 TX1
 $Comp
 L mini68k-rescue:Conn_01x06_Female J4
 U 1 1 5B2B5FB4
-P 6700 6050
-F 0 "J4" H 6700 6350 50  0000 C CNN
-F 1 "FTDI header" H 6700 5650 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical" H 6700 6050 50  0001 C CNN
-F 3 "" H 6700 6050 50  0001 C CNN
-	1    6700 6050
+P 4000 2600
+F 0 "J4" H 4000 2900 50  0000 C CNN
+F 1 "FTDI header COM1" H 4000 2200 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical" H 4000 2600 50  0001 C CNN
+F 3 "" H 4000 2600 50  0001 C CNN
+	1    4000 2600
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	6900 5950 6950 5950
-Text GLabel 6950 5950 2    60   Input ~ 0
+	4200 2500 4250 2500
+Text GLabel 4250 2500 2    60   Input ~ 0
 RX1
 Wire Wire Line
-	6900 5850 6950 5850
+	4200 2400 4250 2400
 Text GLabel 10050 1050 2    60   Output ~ 0
 TX1
 Text GLabel 10050 1150 2    60   Input ~ 0
@@ -1150,29 +1150,29 @@ Wire Wire Line
 $Comp
 L Device:Jumper JP1
 U 1 1 5B2B7077
-P 7250 6050
-F 0 "JP1" H 7250 6200 50  0000 C CNN
-F 1 "Jumper" H 7250 5970 50  0000 C CNN
-F 2 "Pin_Headers:Pin_Header_Straight_1x02_Pitch2.54mm" H 7250 6050 50  0001 C CNN
-F 3 "" H 7250 6050 50  0001 C CNN
-	1    7250 6050
+P 4550 2600
+F 0 "JP1" H 4550 2750 50  0000 C CNN
+F 1 "Jumper" H 4550 2520 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x02_Pitch2.54mm" H 4550 2600 50  0001 C CNN
+F 3 "" H 4550 2600 50  0001 C CNN
+	1    4550 2600
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	6900 6050 6950 6050
+	4200 2600 4250 2600
 $Comp
 L power:VCC #PWR027
 U 1 1 5B2B71ED
-P 7600 6050
-F 0 "#PWR027" H 7600 5900 50  0001 C CNN
-F 1 "VCC" H 7600 6200 50  0000 C CNN
-F 2 "" H 7600 6050 50  0001 C CNN
-F 3 "" H 7600 6050 50  0001 C CNN
-	1    7600 6050
+P 4900 2600
+F 0 "#PWR027" H 4900 2450 50  0001 C CNN
+F 1 "VCC" H 4900 2750 50  0000 C CNN
+F 2 "" H 4900 2600 50  0001 C CNN
+F 3 "" H 4900 2600 50  0001 C CNN
+	1    4900 2600
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	7550 6050 7600 6050
+	4850 2600 4900 2600
 $Comp
 L mini68k-rescue:MAX708CPA+ U6
 U 1 1 5B2D1881
@@ -1241,55 +1241,55 @@ NoConn ~ 9100 4900
 $Comp
 L Device:LED D2
 U 1 1 5B2D3B2E
-P 3950 3900
-F 0 "D2" H 3950 4000 50  0000 C CNN
-F 1 "RED" H 3950 3800 50  0000 C CNN
-F 2 "LEDs:LED_D4.0mm" H 3950 3900 50  0001 C CNN
-F 3 "" H 3950 3900 50  0001 C CNN
-	1    3950 3900
+P 6650 5950
+F 0 "D2" H 6650 6050 50  0000 C CNN
+F 1 "RED" H 6650 5850 50  0000 C CNN
+F 2 "LEDs:LED_D4.0mm" H 6650 5950 50  0001 C CNN
+F 3 "" H 6650 5950 50  0001 C CNN
+	1    6650 5950
 	-1   0    0    1   
 $EndComp
 $Comp
 L Device:R R1
 U 1 1 5B2D3B81
-P 4350 3900
-F 0 "R1" V 4430 3900 50  0000 C CNN
-F 1 "330R" V 4350 3900 50  0000 C CNN
-F 2 "Resistors_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 4280 3900 50  0001 C CNN
-F 3 "" H 4350 3900 50  0001 C CNN
-	1    4350 3900
+P 7050 5950
+F 0 "R1" V 7130 5950 50  0000 C CNN
+F 1 "330R" V 7050 5950 50  0000 C CNN
+F 2 "Resistors_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 6980 5950 50  0001 C CNN
+F 3 "" H 7050 5950 50  0001 C CNN
+	1    7050 5950
 	0    1    1    0   
 $EndComp
 $Comp
 L power:GND #PWR018
 U 1 1 5B2D3BF8
-P 4600 3950
-F 0 "#PWR018" H 4600 3700 50  0001 C CNN
-F 1 "GND" H 4600 3800 50  0000 C CNN
-F 2 "" H 4600 3950 50  0001 C CNN
-F 3 "" H 4600 3950 50  0001 C CNN
-	1    4600 3950
+P 7300 6000
+F 0 "#PWR018" H 7300 5750 50  0001 C CNN
+F 1 "GND" H 7300 5850 50  0000 C CNN
+F 2 "" H 7300 6000 50  0001 C CNN
+F 3 "" H 7300 6000 50  0001 C CNN
+	1    7300 6000
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	4500 3900 4600 3900
+	7200 5950 7300 5950
 Wire Wire Line
-	4600 3900 4600 3950
+	7300 5950 7300 6000
 Wire Wire Line
-	4100 3900 4200 3900
+	6800 5950 6900 5950
 $Comp
 L power:VCC #PWR013
 U 1 1 5B2D3EF5
-P 3700 3900
-F 0 "#PWR013" H 3700 3750 50  0001 C CNN
-F 1 "VCC" H 3700 4050 50  0000 C CNN
-F 2 "" H 3700 3900 50  0001 C CNN
-F 3 "" H 3700 3900 50  0001 C CNN
-	1    3700 3900
+P 6400 5950
+F 0 "#PWR013" H 6400 5800 50  0001 C CNN
+F 1 "VCC" H 6400 6100 50  0000 C CNN
+F 2 "" H 6400 5950 50  0001 C CNN
+F 3 "" H 6400 5950 50  0001 C CNN
+	1    6400 5950
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	3700 3900 3800 3900
+	6400 5950 6500 5950
 Wire Wire Line
 	8400 5850 8450 5850
 Wire Wire Line
@@ -1370,8 +1370,8 @@ NoConn ~ 10100 5300
 NoConn ~ 10100 5650
 NoConn ~ 10100 6000
 NoConn ~ 10100 6350
-NoConn ~ 6900 6150
-NoConn ~ 6900 5750
+NoConn ~ 4200 2700
+NoConn ~ 4200 2300
 NoConn ~ 8450 6150
 NoConn ~ 8450 6250
 Text GLabel 8400 5750 0    60   Input ~ 0
@@ -1460,51 +1460,113 @@ IP5
 $Comp
 L Connector:Conn_01x08_Male J3
 U 1 1 5C894B7C
-P 5800 1550
-F 0 "J3" H 5906 2028 50  0000 C CNN
-F 1 " 8-bit output port" H 5906 1937 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical" H 5800 1550 50  0001 C CNN
-F 3 "~" H 5800 1550 50  0001 C CNN
-	1    5800 1550
+P 6750 1200
+F 0 "J3" H 6856 1678 50  0000 C CNN
+F 1 " 8-bit output port" H 6856 1587 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical" H 6750 1200 50  0001 C CNN
+F 3 "~" H 6750 1200 50  0001 C CNN
+	1    6750 1200
 	1    0    0    -1  
 $EndComp
 $Comp
 L Connector:Conn_01x06_Female J2
 U 1 1 5C894C62
-P 4800 1450
-F 0 "J2" H 4827 1426 50  0000 L CNN
-F 1 " 6-bit input port" H 4827 1335 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical" H 4800 1450 50  0001 C CNN
-F 3 "~" H 4800 1450 50  0001 C CNN
-	1    4800 1450
+P 4150 1100
+F 0 "J2" H 4177 1076 50  0000 L CNN
+F 1 " 6-bit input port" H 4177 985 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical" H 4150 1100 50  0001 C CNN
+F 3 "~" H 4150 1100 50  0001 C CNN
+	1    4150 1100
 	1    0    0    -1  
 $EndComp
-Text GLabel 4600 1250 0    60   Input ~ 0
+Text GLabel 3950 900  0    60   Input ~ 0
 IP0
-Text GLabel 4600 1350 0    60   Input ~ 0
+Text GLabel 3950 1000 0    60   Input ~ 0
 IP1
-Text GLabel 4600 1450 0    60   Input ~ 0
+Text GLabel 3950 1100 0    60   Input ~ 0
 IP2
-Text GLabel 4600 1550 0    60   Input ~ 0
+Text GLabel 3950 1200 0    60   Input ~ 0
 IP3
-Text GLabel 4600 1650 0    60   Input ~ 0
+Text GLabel 3950 1300 0    60   Input ~ 0
 IP4
-Text GLabel 4600 1750 0    60   Input ~ 0
+Text GLabel 3950 1400 0    60   Input ~ 0
 IP5
-Text GLabel 6000 1250 2    60   Output ~ 0
+Text GLabel 6950 900  2    60   Output ~ 0
 OP0
-Text GLabel 6000 1350 2    60   Output ~ 0
+Text GLabel 6950 1000 2    60   Output ~ 0
 OP1
-Text GLabel 6000 1450 2    60   Output ~ 0
+Text GLabel 6950 1100 2    60   Output ~ 0
 OP2
-Text GLabel 6000 1550 2    60   Output ~ 0
+Text GLabel 6950 1200 2    60   Output ~ 0
 OP3
-Text GLabel 6000 1650 2    60   Output ~ 0
+Text GLabel 6950 1300 2    60   Output ~ 0
 OP4
-Text GLabel 6000 1750 2    60   Output ~ 0
+Text GLabel 6950 1400 2    60   Output ~ 0
 OP5
-Text GLabel 6000 1850 2    60   Output ~ 0
+Text GLabel 6950 1500 2    60   Output ~ 0
 OP6
-Text GLabel 6000 1950 2    60   Output ~ 0
+Text GLabel 6950 1600 2    60   Output ~ 0
 OP7
+$Comp
+L power:GND #PWR0101
+U 1 1 5C86A93E
+P 5650 2050
+F 0 "#PWR0101" H 5650 1800 50  0001 C CNN
+F 1 "GND" H 5650 1900 50  0000 C CNN
+F 2 "" H 5650 2050 50  0001 C CNN
+F 3 "" H 5650 2050 50  0001 C CNN
+	1    5650 2050
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5600 2000 5650 2000
+Wire Wire Line
+	5650 2000 5650 2050
+Text GLabel 5650 1600 2    60   Output ~ 0
+TX2
+$Comp
+L mini68k-rescue:Conn_01x06_Female J5
+U 1 1 5C86A947
+P 5400 1800
+F 0 "J5" H 5400 2100 50  0000 C CNN
+F 1 "FTDI header COM2" H 5400 1400 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical" H 5400 1800 50  0001 C CNN
+F 3 "" H 5400 1800 50  0001 C CNN
+	1    5400 1800
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	5600 1700 5650 1700
+Text GLabel 5650 1700 2    60   Input ~ 0
+RX2
+Wire Wire Line
+	5600 1600 5650 1600
+$Comp
+L Device:Jumper JP2
+U 1 1 5C86A951
+P 5950 1800
+F 0 "JP2" H 5950 1950 50  0000 C CNN
+F 1 "Jumper" H 5950 1720 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 5950 1800 50  0001 C CNN
+F 3 "" H 5950 1800 50  0001 C CNN
+	1    5950 1800
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5600 1800 5650 1800
+$Comp
+L power:VCC #PWR0102
+U 1 1 5C86A959
+P 6300 1800
+F 0 "#PWR0102" H 6300 1650 50  0001 C CNN
+F 1 "VCC" H 6300 1950 50  0000 C CNN
+F 2 "" H 6300 1800 50  0001 C CNN
+F 3 "" H 6300 1800 50  0001 C CNN
+	1    6300 1800
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	6250 1800 6300 1800
+NoConn ~ 5600 1900
+NoConn ~ 5600 1500
 $EndSCHEMATC
