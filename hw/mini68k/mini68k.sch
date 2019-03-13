@@ -577,7 +577,7 @@ Text GLabel 3950 6950 0    60   Input ~ 0
 A12
 Text GLabel 3950 7050 0    60   Input ~ 0
 A13
-Text GLabel 3950 7150 0    60   Input ~ 0
+Text GLabel 2900 6100 0    60   Input ~ 0
 A14
 Text GLabel 1050 5950 0    60   Input ~ 0
 A0
@@ -1081,16 +1081,14 @@ Wire Wire Line
 $Comp
 L power:VCC #PWR014
 U 1 1 5B2AD1E7
-P 3900 7350
-F 0 "#PWR014" H 3900 7200 50  0001 C CNN
-F 1 "VCC" H 3900 7500 50  0000 C CNN
-F 2 "" H 3900 7350 50  0001 C CNN
-F 3 "" H 3900 7350 50  0001 C CNN
-	1    3900 7350
-	1    0    0    -1  
+P 6000 6950
+F 0 "#PWR014" H 6000 6800 50  0001 C CNN
+F 1 "VCC" H 6000 7100 50  0000 C CNN
+F 2 "" H 6000 6950 50  0001 C CNN
+F 3 "" H 6000 6950 50  0001 C CNN
+	1    6000 6950
+	0    1    1    0   
 $EndComp
-Wire Wire Line
-	4000 7350 3900 7350
 Wire Wire Line
 	6200 3950 6200 3900
 $Comp
@@ -1569,4 +1567,49 @@ Wire Wire Line
 	6250 1800 6300 1800
 NoConn ~ 5600 1900
 NoConn ~ 5600 1500
+$Comp
+L Jumper:Jumper_3_Open JP4
+U 1 1 5C8940DD
+P 5750 6950
+F 0 "JP4" H 5750 7174 50  0000 C CNN
+F 1 "Jumper_3_Open" H 5750 7083 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 5750 6950 50  0001 C CNN
+F 3 "~" H 5750 6950 50  0001 C CNN
+	1    5750 6950
+	1    0    0    -1  
+$EndComp
+$Comp
+L Jumper:Jumper_3_Open JP3
+U 1 1 5C894141
+P 3150 6100
+F 0 "JP3" H 3150 6324 50  0000 C CNN
+F 1 "Jumper_3_Open" H 3150 6233 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 3150 6100 50  0001 C CNN
+F 3 "~" H 3150 6100 50  0001 C CNN
+	1    3150 6100
+	1    0    0    -1  
+$EndComp
+Text GLabel 3950 7150 0    60   Input ~ 0
+ROM_PIN1
+Text GLabel 3950 7350 0    60   Input ~ 0
+ROM_PIN27
+Wire Wire Line
+	4000 7350 3950 7350
+Text GLabel 3150 6250 3    60   Output ~ 0
+ROM_PIN1
+Text GLabel 5500 6950 0    60   Input ~ 0
+A14
+Text GLabel 5750 7100 3    60   Output ~ 0
+ROM_PIN27
+$Comp
+L power:VCC #PWR0103
+U 1 1 5C8E58A0
+P 3400 6100
+F 0 "#PWR0103" H 3400 5950 50  0001 C CNN
+F 1 "VCC" H 3400 6250 50  0000 C CNN
+F 2 "" H 3400 6100 50  0001 C CNN
+F 3 "" H 3400 6100 50  0001 C CNN
+	1    3400 6100
+	0    1    1    0   
+$EndComp
 $EndSCHEMATC
