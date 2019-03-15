@@ -1,0 +1,28 @@
+GAL16V8
+glue
+
+; use galasm to compile to jed
+; https://github.com/daveho/GALasm
+
+DTR A16  A15   AS    DS    FC0   RW    FC1  FC2    GND
+NC  HALT DTACK ROMOE RAMWE RAMOE RESET IACK UARTCS VCC
+
+RESET.T = DTR
+RESET.E = /DTR
+
+HALT = DTR
+
+DTACK.T = DS
+DTACK.E = DTR * /DS * /A15
+
+/IACK = DTR * /DS * FC2 * FC1 * FC0
+
+/ROMOE = DTR * /DS *  RW * /A16 * /A15 ; $00000
+/RAMOE = DTR * /DS *  RW *  A16 * /A15 ; $10000
+/RAMWE = DTR * /DS * /RW *  A16 * /A15 ; $10000
+/UARTCS = DTR * /DS * /FC1 * FC0 * A16 *  A15 ; $18000
+
+DESCRIPTION
+
+mini68k glue logic
+
