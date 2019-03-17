@@ -1,4 +1,5 @@
 EESchema Schematic File Version 4
+LIBS:mini68k-cache
 EELAYER 26 0
 EELAYER END
 $Descr USLetter 11000 8500
@@ -256,7 +257,6 @@ F 3 "" H 2400 5100 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	2400 5250 2400 5400
-Connection ~ 2400 4950
 $Comp
 L Device:D_ALT D1
 U 1 1 5B2878DB
@@ -564,7 +564,7 @@ L Device:R_Network06 RN1
 U 1 1 5B28A873
 P 8650 6050
 F 0 "RN1" V 8250 6050 50  0000 C CNN
-F 1 "R_Network06" V 8950 6050 50  0000 C CNN
+F 1 "1k" V 8950 6050 50  0000 C CNN
 F 2 "Resistor_THT:R_Array_SIP7" V 9025 6050 50  0001 C CNN
 F 3 "" H 8650 6050 50  0001 C CNN
 	1    8650 6050
@@ -827,11 +827,10 @@ Text GLabel 8400 5850 0    60   BiDi ~ 0
 DTACK
 Wire Wire Line
 	8400 6050 8450 6050
-Text GLabel 7900 1050 0    60   Input ~ 0
+Text GLabel 7450 3800 0    60   Input ~ 0
 CLK
 Wire Wire Line
 	7900 1050 8000 1050
-NoConn ~ 8000 1150
 Text GLabel 7900 2250 0    60   Input ~ 0
 A1
 Text GLabel 7900 2350 0    60   Input ~ 0
@@ -980,7 +979,7 @@ U 1 1 5B2B5FB4
 P 3900 1900
 F 0 "J4" H 3900 2200 50  0000 C CNN
 F 1 "FTDI header COM1" H 3900 1500 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical" H 3900 1900 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Horizontal" H 3900 1900 50  0001 C CNN
 F 3 "" H 3900 1900 50  0001 C CNN
 	1    3900 1900
 	1    0    0    -1  
@@ -1238,8 +1237,6 @@ Wire Wire Line
 Wire Wire Line
 	4900 5250 5200 5250
 Wire Wire Line
-	2400 4950 2650 4950
-Wire Wire Line
 	1400 5250 1400 5400
 Wire Wire Line
 	750  1150 750  1350
@@ -1300,7 +1297,7 @@ U 1 1 5C894B7C
 P 6750 1200
 F 0 "J3" H 6856 1678 50  0000 C CNN
 F 1 " 8-bit output port" H 6856 1587 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical" H 6750 1200 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Horizontal" H 6750 1200 50  0001 C CNN
 F 3 "~" H 6750 1200 50  0001 C CNN
 	1    6750 1200
 	1    0    0    -1  
@@ -1367,7 +1364,7 @@ U 1 1 5C86A947
 P 5350 1000
 F 0 "J5" H 5350 1300 50  0000 C CNN
 F 1 "FTDI header COM2" H 5350 600 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical" H 5350 1000 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Horizontal" H 5350 1000 50  0001 C CNN
 F 3 "" H 5350 1000 50  0001 C CNN
 	1    5350 1000
 	1    0    0    -1  
@@ -1454,7 +1451,7 @@ L Oscillator:TCXO-14 X1
 U 1 1 5B29FF33
 P 4300 3750
 F 0 "X1" H 4100 4000 50  0000 L CNN
-F 1 "TCXO-14" H 4350 3500 50  0000 L CNN
+F 1 "8 Mhz" H 4350 3500 50  0000 L CNN
 F 2 "Oscillator:Oscillator_DIP-14_LargePads" H 4750 3400 50  0001 C CNN
 F 3 "" H 4200 3750 50  0001 C CNN
 	1    4300 3750
@@ -1515,4 +1512,86 @@ F 3 "" H 10100 4050 50  0001 C CNN
 	1    10100 4050
 	0    -1   -1   0   
 $EndComp
+NoConn ~ 2050 5150
+Wire Wire Line
+	2650 4950 2400 4950
+Connection ~ 2400 4950
+$Comp
+L Device:Crystal Y1
+U 1 1 5C8F1BBA
+P 5400 4000
+F 0 "Y1" H 5400 4268 50  0000 C CNN
+F 1 "3.6864 Mhz" H 5400 4150 50  0000 C CNN
+F 2 "Crystal:Crystal_HC49-4H_Vertical" H 5400 4000 50  0001 C CNN
+F 3 "~" H 5400 4000 50  0001 C CNN
+	1    5400 4000
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:Jumper JP5
+U 1 1 5C8F1DCA
+P 7750 3800
+F 0 "JP5" H 7750 4000 50  0000 C CNN
+F 1 "Jumper" H 7750 3700 50  0000 C CNN
+F 2 "Connector_PinSocket_2.54mm:PinSocket_1x02_P2.54mm_Vertical" H 7750 3800 50  0001 C CNN
+F 3 "~" H 7750 3800 50  0001 C CNN
+	1    7750 3800
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8000 1150 7900 1150
+Text GLabel 7900 1050 0    60   Input ~ 0
+X1
+Text GLabel 7900 1150 0    60   Input ~ 0
+X2
+Text GLabel 5200 4000 0    60   Output ~ 0
+X1
+Text GLabel 5600 4000 2    60   Output ~ 0
+X2
+Text GLabel 8050 3800 2    60   Output ~ 0
+X1
+$Comp
+L Device:C C11
+U 1 1 5C902842
+P 5550 4150
+F 0 "C11" H 5575 4250 50  0000 L CNN
+F 1 "15pf" H 5575 4050 50  0000 L CNN
+F 2 "Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P2.50mm" H 5588 4000 50  0001 C CNN
+F 3 "" H 5550 4150 50  0001 C CNN
+	1    5550 4150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C10
+U 1 1 5C9028C3
+P 5250 4150
+F 0 "C10" H 5275 4250 50  0000 L CNN
+F 1 "5pf" H 5275 4050 50  0000 L CNN
+F 2 "Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P2.50mm" H 5288 4000 50  0001 C CNN
+F 3 "" H 5250 4150 50  0001 C CNN
+	1    5250 4150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5200 4000 5250 4000
+Connection ~ 5250 4000
+Wire Wire Line
+	5550 4000 5600 4000
+Connection ~ 5550 4000
+Wire Wire Line
+	5250 4300 5400 4300
+$Comp
+L power:GND #PWR0106
+U 1 1 5C92C213
+P 5400 4300
+F 0 "#PWR0106" H 5400 4050 50  0001 C CNN
+F 1 "GND" H 5400 4150 50  0000 C CNN
+F 2 "" H 5400 4300 50  0001 C CNN
+F 3 "" H 5400 4300 50  0001 C CNN
+	1    5400 4300
+	1    0    0    -1  
+$EndComp
+Connection ~ 5400 4300
+Wire Wire Line
+	5400 4300 5550 4300
 $EndSCHEMATC

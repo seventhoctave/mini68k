@@ -1,0 +1,32 @@
+GAL22V10
+glue
+
+;
+; use galasm to compile to jed
+; https://github.com/daveho/GALasm
+;
+; RST: external reset
+;
+
+A18 A17  RST   A16   A15   AS    DS    FC0  RW     FC1  FC2 GND
+NC  HALT DTACK ROMOE RAMWE RAMOE RESET IACK UARTCS NC   NC  VCC
+
+RESET.T = RST
+RESET.E = /RST
+
+HALT = RST
+
+DTACK.T = DS
+DTACK.E = RST * /DS * /A15
+
+/IACK = RST * /DS * FC2 * FC1 * FC0
+
+/ROMOE = RST * /DS *  RW * /A16 * /A15       ; $00000
+/RAMOE = RST * /DS *  RW *  A16 * /A15       ; $10000
+/RAMWE = RST * /DS * /RW *  A16 * /A15       ; $10000
+/UARTCS = RST * /DS * /FC1 * FC0 * A16 * A15 ; $18000
+
+DESCRIPTION
+
+mini68k glue logic
+
