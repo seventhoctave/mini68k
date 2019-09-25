@@ -1,19 +1,33 @@
 
-.equ DUART_MR1A, 0x8000
-.equ DUART_MR2A, 0x8000
-.equ DUART_SRA, 0x8002
-.equ DUART_CSRA, 0x8002
-.equ DUART_CRA, 0x8004
-.equ DUART_RHRA, 0x8006
-.equ DUART_THRA, 0x8006
-.equ DUART_IPCR, 0x8008
-.equ DUART_ACR, 0x8008
-.equ DUART_ISR, 0x800A
-.equ DUART_IMR, 0x800A
-.equ DUART_IVR, 0x8018
-.equ DUART_OPCR, 0x801A
-.equ DUART_SOPR, 0x801C
-.equ DUART_ROPR, 0x801E
+.equ DUART, 0x8000
+/* port a */
+.equ DUART_MR1A, DUART
+.equ DUART_MR2A, DUART
+.equ DUART_SRA,  DUART + 0x02
+.equ DUART_CSRA, DUART + 0x02
+.equ DUART_CRA,  DUART + 0x04
+.equ DUART_RHRA, DUART + 0x06
+.equ DUART_THRA, DUART + 0x06
+
+.equ DUART_IPCR, DUART + 0x08
+.equ DUART_ACR,  DUART + 0x08
+.equ DUART_ISR,  DUART + 0x0A
+.equ DUART_IMR,  DUART + 0x0A
+
+/* port b */
+.equ DUART_MR1B, DUART + 0x10
+.equ DUART_MR2B, DUART + 0x10
+.equ DUART_SRB,  DUART + 0x12
+.equ DUART_CSRB, DUART + 0x12
+.equ DUART_CRB,  DUART + 0x14
+.equ DUART_RHRB, DUART + 0x16
+.equ DUART_THRB, DUART + 0x16
+
+.equ DUART_IVR,  DUART + 0x18
+.equ DUART_OPCR, DUART + 0x1A
+.equ DUART_SOPR, DUART + 0x1C
+.equ DUART_ROPR, DUART + 0x1E
+
 .equ INPORT_INT_BIT, 7
 .equ BREAKB_INT_BIT, 6
 .equ RXRDYB_INT_BIT, 5
@@ -22,23 +36,24 @@
 .equ BREAKA_INT_BIT, 2
 .equ RXRDYA_INT_BIT, 1
 .equ TXRDYA_INT_BIT, 0
-.equ CRA_RESET_MRA, 0x10
-.equ CRA_RESET_RCVR, 0x20
-.equ CRA_RESET_XMTR, 0x30
+
+.equ CRA_RESET_MRA,   0x10
+.equ CRA_RESET_RCVR,  0x20
+.equ CRA_RESET_XMTR,  0x30
 .equ CRA_RESER_ERROR, 0x40
 .equ CRA_RESET_BREAK, 0x50
 .equ CRA_START_BREAK, 0x60
-.equ CRA_STOP_BREAK, 0x70
-.equ CRA_DISABLE_TX, 0x08
-.equ CRA_ENABLE_TX, 0x04
-.equ CRA_DISABLE_RX, 0x02
-.equ CRA_ENABLE_RX, 0x01
+.equ CRA_STOP_BREAK,  0x70
+.equ CRA_DISABLE_TX,  0x08
+.equ CRA_ENABLE_TX,   0x04
+.equ CRA_DISABLE_RX,  0x02
+.equ CRA_ENABLE_RX,   0x01
 
 .equ ASCII_CR, 13
 .equ ASCII_LF, 10
 
 .equ INT_MASK, ~0x0700
-.equ SSP_INIT, 0x17E00
+.equ SSP_INIT,  0x17E00
 .equ BUFR_SIZE, 128
 .equ BUFR_SIZE_MASK, BUFR_SIZE - 1
 
@@ -57,15 +72,15 @@ RXBUFR: .ds.l(BUFR_SIZE / 4) - 8, ERROR_RESET
     .ds.l 1, BIOS_CALL
 TXBUFR: .ds.l(BUFR_SIZE / 4) - 1, ERROR_RESET
     .ds.l 1, DUART_INT
-CMND_BUFR: .ds.l(BUFR_SIZE / 4), 0xffffffff
-TXTOP: .ds.b 2, 0xff
-TXBOT: .ds.b 2, 0xff
-RXTOP: .ds.b 2, 0xff
-RXBOT: .ds.b 2, 0xff
-IMR_IMAGE: .ds.b 1, 0xff
-ISR_IMAGE: .ds.b 1, 0xff
+CMND_BUFR: .ds.l(BUFR_SIZE / 4), 0xFFFFFFFF
+TXTOP: .ds.b 2, 0xFF
+TXBOT: .ds.b 2, 0xFF
+RXTOP: .ds.b 2, 0xFF
+RXBOT: .ds.b 2, 0xFF
+IMR_IMAGE: .ds.b 1, 0xFF
+ISR_IMAGE: .ds.b 1, 0xFF
 
-    .org 0x00000400, 0xff
+    .org 0x00000400, 0xFF
 
     .global _start
 _start:
@@ -86,15 +101,15 @@ INIT_RESET:
     movel %a0, %fp@(TXRDYB_IV)
     movel %a0, %fp@(CTRRDY_IV)
     movel %a0, %fp@(BREAKA_IV)
-    movel #RX_INT, %fp@(RXRDYA_IV)
-    movel #TX_INT, %fp@(TXRDYA_IV)
+    movel #RXA_INT, %fp@(RXRDYA_IV)
+    movel #TXA_INT, %fp@(TXRDYA_IV)
 
     moveb #CRA_RESET_RCVR, (DUART_CRA).w
     moveb #CRA_RESET_XMTR, (DUART_CRA).w
     moveb #CRA_RESET_MRA, (DUART_CRA).w
     moveb #0x13, (DUART_MR1A).w
     moveb #7, (DUART_MR2A).w
-    moveb #0xbb, (DUART_CSRA).w
+    moveb #0xCC, (DUART_CSRA).w  /* 38400 */
     moveb #3, (DUART_IMR).w
     moveb #3, %fp@(IMR_IMAGE)
     moveb #64, (DUART_IVR).w
@@ -213,19 +228,19 @@ DUART_INT_X:
     moveml %sp@+,%d0-%d1/%a0
     rte
 
-TX_INT:
+TXA_INT:
     movew %fp@(TXBOT),%d0
     cmpw %fp@(TXTOP),%d0
-    bnes TX_INT_1
+    bnes TXA_INT_1
     moveb #CRA_DISABLE_TX, (DUART_CRA).w
-    bras TX_INT_X
-TX_INT_1:
+    bras TXA_INT_X
+TXA_INT_1:
     lea %fp@(TXBUFR),%a0
     moveb %a0@(0,%d0:w),(DUART_THRA).w
     addqw #1,%d0
     andiw #BUFR_SIZE_MASK,%d0
     movew %d0,%fp@(TXBOT)
-TX_INT_X:
+TXA_INT_X:
     rts
 
 PUTC:
@@ -250,7 +265,7 @@ PUTS:
 PUTS_X:
     rts
 
-RX_INT:
+RXA_INT:
     moveb (DUART_RHRA).w,%d1
     lea %fp@(RXBUFR),%a0
     movew %fp@(RXTOP),%d0
@@ -258,10 +273,10 @@ RX_INT:
     addqw #1,%d0
     andiw #BUFR_SIZE_MASK,%d0
     cmpw %fp@(RXBOT),%d0
-    beqs RXINT_X
+    beqs RXAINT_X
     moveb %d1,%a0@
     movew %d0,%fp@(RXTOP)
-RXINT_X:
+RXAINT_X:
     rts
 
 GETC:

@@ -8,23 +8,23 @@ glue
 ; RST: external reset
 ;
 
-A18 A17  RST   A16   A15   AS    DS    FC0  RW     FC1  FC2 GND
-NC  HALT DTACK ROMOE RAMWE RAMOE RESET IACK UARTCS NC   NC  VCC
+A19 A18  A17   A16   A15   AS    DS    FC0  RW     FC1   FC2  GND
+RST HALT DTACK ROMOE RAMWE RAMOE RESET IACK UARTCS VIDRW VIDM VCC
 
 RESET.T = RST
 RESET.E = /RST
 
 HALT = RST
 
-DTACK.T = DS
-DTACK.E = RST * /DS * /A15
+DTACK.T = AS
+DTACK.E = RST * /AS * /A15
 
-/IACK = RST * /DS * FC2 * FC1 * FC0
+/IACK = RST * /AS * FC2 * FC1 * FC0
 
-/ROMOE = RST * /DS *  RW * /A16 * /A15       ; $00000
-/RAMOE = RST * /DS *  RW *  A16 * /A15       ; $10000
-/RAMWE = RST * /DS * /RW *  A16 * /A15       ; $10000
-/UARTCS = RST * /DS * /FC1 * FC0 * A16 * A15 ; $18000
+/ROMOE  = RST * /AS *  RW  * /A15 * /A16 * /A17               ; $00000
+/RAMOE  = RST * /AS *  RW  * /A15 *  A16 * /A17               ; $10000
+/RAMWE  = RST * /AS * /RW  * /A15 *  A16 * /A17               ; $10000
+/UARTCS = RST * /AS *         A15 *  A16 * /A17 * /FC1 * FC0  ; $18000
 
 DESCRIPTION
 
