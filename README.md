@@ -1,6 +1,6 @@
 # mini68k
 
-![alt v1](hw/v1.jpg)
+![alt v1](hw/100x100.jpg)
 
 ![alt breadboard](hw/breadboard.jpg)
 
