@@ -3,3 +3,4 @@ bios.bin
 bios.lst
 bios.o
 *.bak
+target/

@@ -1,0 +1,11 @@
+.git
+.build
+target
+**/target
+build.log
+crosstool-ng.sparseimage
+hw
+bios/*.bin
+bios/*.h68
+bios/*.lst
+bios/*.o

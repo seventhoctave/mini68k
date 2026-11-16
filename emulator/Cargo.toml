@@ -1,0 +1,19 @@
+[package]
+name = "mini68k-emu"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+
+[lib]
+name = "mini68k_emu"
+path = "src/lib.rs"
+
+[[bin]]
+name = "mini68k-emu"
+path = "src/main.rs"
+
+[dependencies]
+minifb = "0.27"
+
+[dev-dependencies]
+png = "0.17"
