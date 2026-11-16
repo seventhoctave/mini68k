@@ -1,0 +1,32 @@
+GAL16V8
+gluev2
+
+; mini68k v2 system board glue logic.
+; use galasm to compile to jed: https://github.com/daveho/GALasm
+;
+; Changes from glue.pld (v1): pin 11 is now the A14 input (it was tied to
+; GND), and the DUART select is qualified with /A14 so it only answers at
+; $18000-$1BFFF. $1C000-$1FFFF is left for the VDP board, which decodes
+; its own select (A16*A15*A14, /FC1, /DS) and drives DTACK itself.
+
+DTR A16  A15   AS    DS    FC0   RW    FC1  FC2    GND
+A14 HALT DTACK ROMOE RAMWE RAMOE RESET IACK UARTCS VCC
+
+RESET.T = DTR
+RESET.E = /DTR
+
+HALT = DTR
+
+DTACK.T = DS
+DTACK.E = DTR * /DS * /A15
+
+/IACK = DTR * /DS * FC2 * FC1 * FC0
+
+/ROMOE = DTR * /DS *  RW * /A16 * /A15 ; $00000
+/RAMOE = DTR * /DS *  RW *  A16 * /A15 ; $10000
+/RAMWE = DTR * /DS * /RW *  A16 * /A15 ; $10000
+/UARTCS = DTR * /DS * /FC1 * FC0 * A16 *  A15 * /A14 ; $18000
+
+DESCRIPTION
+
+mini68k v2 glue logic: v1 equations plus A14 qualification of the DUART

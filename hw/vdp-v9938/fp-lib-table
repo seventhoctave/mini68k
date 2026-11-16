@@ -1,0 +1,4 @@
+(fp_lib_table
+	(version 7)
+	(lib (name "vdp") (type "KiCad") (uri "${KIPRJMOD}/../vdp-lib/vdp.pretty") (options "") (descr "mini68k VDP boards"))
+)

@@ -1,0 +1,25 @@
+
+
+ Pin # | Name     | Pin Type
+-----------------------------
+   1   | DTR      | Input
+   2   | A16      | Input
+   3   | A15      | Input
+   4   | AS       | Input
+   5   | DS       | Input
+   6   | FC0      | Input
+   7   | RW       | Input
+   8   | FC1      | Input
+   9   | FC2      | Input
+  10   | GND      | GND
+  11   | A14      | Input
+  12   | HALT     | Output
+  13   | DTACK    | Output
+  14   | ROMOE    | Output
+  15   | RAMWE    | Output
+  16   | RAMOE    | Output
+  17   | RESET    | Output
+  18   | IACK     | Output
+  19   | UARTCS   | Output
+  20   | VCC      | VCC
+

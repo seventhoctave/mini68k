@@ -70,7 +70,7 @@ routines and the same `TRAP #0` API, so programs run on either chip.
 | Drawing | VDP command engine | software (Bresenham lines, byte-at-a-time boxes) |
 | Sprites | mode 2: per-line colours | one colour per sprite, max 4 per line |
 | Palette | programmable (`VDP_SETPAL`) | fixed (`VDP_SETPAL` is a no-op) |
-| Bus timing | VDP `/WAIT` holds `DTACK` | no `/WAIT`: the driver spaces VRAM accesses in software (`TMS_WAIT`) |
+| Bus timing | no `/WAIT` on the V9938 either: the driver spaces port accesses in software (`VDP_WAIT`, 8 us) | no `/WAIT`: the driver spaces VRAM accesses in software (`TMS_WAIT`) |
 
 On the TMS9918A, colour 0 in `VDP_PSET`/`VDP_BOX`/`VDP_LINE` clears pixels. Any
 other colour sets them and becomes the foreground of the affected 8-pixel

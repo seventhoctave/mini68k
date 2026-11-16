@@ -6,3 +6,11 @@ bios.o
 target/
 demos/*.o
 demos/*.s28
+
+# KiCad per-user / backup files
+*.kicad_prl
+*.lck
+.history/
+*-backups/
+fp-info-cache
+__pycache__/

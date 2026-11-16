@@ -1,0 +1,5 @@
+(sym_lib_table
+	(version 7)
+	(lib (name "mini68k") (type "Legacy") (uri "${KIPRJMOD}/mini68k.lib") (options "") (descr ""))
+	(lib (name "mini68k-v2-cache") (type "Legacy") (uri "${KIPRJMOD}/mini68k-v2-cache.lib") (options "") (descr "Legacy project cache library"))
+)

@@ -73,6 +73,24 @@ VDP_WR_REG:
     andib #0x3F, %d0
     rts
 
+/* -------- VDP_WAIT: space VDP port accesses
+ * The V9938 has no /WAIT output (data book p.114: pin 4 is *VDS; /WAIT is
+ * a V9958 feature), so the CPU must pace itself: the data book (p.121)
+ * requires 8 us between VRAM data accesses and between an address/register
+ * setup and the following data byte, and 2 us between the two setup bytes.
+ * Every data, palette, indirect-register and status access goes through
+ * here; the bsr/rts and loop cost well over 64 clocks on the 68008 at 8 MHz.
+ * preserves: all
+ */
+.equ VDP_WAIT_LOOPS, 1
+VDP_WAIT:
+    movel %d0, %sp@-
+    moveq #VDP_WAIT_LOOPS, %d0
+VDP_WAIT_1:
+    dbf   %d0, VDP_WAIT_1
+    movel %sp@+, %d0
+    rts
+
 /* -------- VDP_SET_WRITE / VDP_SET_READ: set VRAM access pointer
  * in:  d0.l = 17-bit VRAM address
  * preserves: all
@@ -109,6 +127,7 @@ VDP_FILL:
     bsr   VDP_SET_WRITE
     subqw #1, %d2
 VDP_FILL_1:
+    bsr   VDP_WAIT
     moveb %d1, (VDP_DATA).w
     dbf   %d2, VDP_FILL_1
     rts
@@ -137,6 +156,7 @@ VDP_STATUS:
     moveq #15, %d0
     bsr   VDP_WR_REG
     moveq #0, %d0
+    bsr   VDP_WAIT
     moveb (VDP_CMD).w, %d0
     moveb #0, (VDP_CMD).w
     moveb #0x8F, (VDP_CMD).w
@@ -166,6 +186,7 @@ VDP_LOAD_PAL:
     lea   VDP_PAL_TABLE(%pc), %a0
     moveq #32 - 1, %d1
 VDP_LOAD_PAL_1:
+    bsr   VDP_WAIT
     moveb %a0@+, (VDP_PAL).w
     dbf   %d1, VDP_LOAD_PAL_1
     rts
@@ -174,8 +195,10 @@ VDP_LOAD_PAL_1:
  * preserves: all
  */
 VDP_IW16:
+    bsr   VDP_WAIT
     moveb %d0, (VDP_IREG).w
     rorw  #8, %d0
+    bsr   VDP_WAIT
     moveb %d0, (VDP_IREG).w
     rorw  #8, %d0
     rts
@@ -199,8 +222,11 @@ VDP_CMD_EXEC:
     bsrs  VDP_IW16
     movew %d4, %d0
     bsrs  VDP_IW16
+    bsr   VDP_WAIT
     moveb %d5, (VDP_IREG).w
+    bsr   VDP_WAIT
     moveb %d6, (VDP_IREG).w
+    bsr   VDP_WAIT
     moveb %d7, (VDP_IREG).w
     rts
 
@@ -215,6 +241,7 @@ VDP_CMD_EXEC:
  */
 VDP_INIT:
     moveml %d0-%d2/%a0, %sp@-
+    bsr   VDP_WAIT
     moveb (VDP_CMD).w, %d0          /* status read resets the latch */
     bsr   VDP_WAIT_CE
     lea   VDP_TEXT2_REGS(%pc), %a0
@@ -229,6 +256,7 @@ VDP_INIT:
     lea   VDP_FONT6X8(%pc), %a0
     movew #(VDP_FONT6X8_END - VDP_FONT6X8) - 1, %d2
 VDP_INIT_1:
+    bsr   VDP_WAIT
     moveb %a0@+, (VDP_DATA).w
     dbf   %d2, VDP_INIT_1
 
@@ -258,6 +286,7 @@ VDP_TEXT_CLEAR:
  */
 VDP_G4_INIT:
     moveml %d0-%d7/%a0, %sp@-
+    bsr   VDP_WAIT
     moveb (VDP_CMD).w, %d0
     bsr   VDP_WAIT_CE
     lea   VDP_G4_REGS(%pc), %a0
@@ -281,9 +310,13 @@ VDP_G4_INIT:
     bsr   VDP_SET_WRITE
     moveq #32 - 1, %d2
 VDP_G4_INIT_1:
+    bsr   VDP_WAIT
     moveb #VDP_SPR_HIDDEN, (VDP_DATA).w
+    bsr   VDP_WAIT
     moveb #0, (VDP_DATA).w
+    bsr   VDP_WAIT
     moveb #0, (VDP_DATA).w
+    bsr   VDP_WAIT
     moveb #0, (VDP_DATA).w
     dbf   %d2, VDP_G4_INIT_1
 
@@ -381,7 +414,9 @@ VDP_SETPAL:
     bsr   VDP_WR_REG
     movew %d2, %d0
     lsrw  #8, %d0
+    bsr   VDP_WAIT
     moveb %d0, (VDP_PAL).w
+    bsr   VDP_WAIT
     moveb %d2, (VDP_PAL).w
     movel %sp@+, %d1
     rts
@@ -401,6 +436,7 @@ VDP_SPRPAT:
     moveal %a1, %a0
     moveq #32 - 1, %d1
 VDP_SPRPAT_1:
+    bsr   VDP_WAIT
     moveb %a0@+, (VDP_DATA).w
     dbf   %d1, VDP_SPRPAT_1
     movel %sp@+, %d1
@@ -425,11 +461,15 @@ VDP_SPRSET:
     bnes  VDP_SPRSET_1
     moveb #VDP_SPR_HIDDEN, %d0
 VDP_SPRSET_1:
+    bsr   VDP_WAIT
     moveb %d0, (VDP_DATA).w
+    bsr   VDP_WAIT
     moveb %d2, (VDP_DATA).w
     moveb %d4, %d0
     lslb  #2, %d0
+    bsr   VDP_WAIT
     moveb %d0, (VDP_DATA).w
+    bsr   VDP_WAIT
     moveb #0, (VDP_DATA).w
 
     /* colour table: same colour on all 16 lines */
@@ -442,6 +482,7 @@ VDP_SPRSET_1:
     andib #0x0F, %d0
     moveq #16 - 1, %d2
 VDP_SPRSET_2:
+    bsr   VDP_WAIT
     moveb %d0, (VDP_DATA).w
     dbf   %d2, VDP_SPRSET_2
 
@@ -458,6 +499,7 @@ VDP_SPRHIDE:
     lslw  #2, %d0
     addl  #VDP_G4_SPRATR, %d0
     bsr   VDP_SET_WRITE
+    bsr   VDP_WAIT
     moveb #VDP_SPR_HIDDEN, (VDP_DATA).w
     movel %sp@+, %d1
     rts
@@ -503,6 +545,7 @@ VPR_3:
     addl  %d1, %d0
     addl  #VDP_NAME_BASE, %d0
     bsr   VDP_SET_WRITE
+    bsr   VDP_WAIT
     moveb %d2, (VDP_DATA).w
 
     /* advance column, wrap to next row */
@@ -543,6 +586,7 @@ VDP_SCROLL_1:
     moveal %sp, %a0
     moveq #VDP_COLS - 1, %d2
 VDP_SCROLL_2:
+    bsr   VDP_WAIT
     moveb (VDP_DATA).w, %a0@+
     dbf   %d2, VDP_SCROLL_2
 
@@ -552,6 +596,7 @@ VDP_SCROLL_2:
     moveal %sp, %a0
     moveq #VDP_COLS - 1, %d2
 VDP_SCROLL_3:
+    bsr   VDP_WAIT
     moveb %a0@+, (VDP_DATA).w
     dbf   %d2, VDP_SCROLL_3
 
