@@ -42,6 +42,13 @@
 .equ BUFR_SIZE, 128
 .equ BUFR_SIZE_MASK, BUFR_SIZE - 1
 
+/* V9938 console state: fp-relative slots above ISR_IMAGE (0x18D), clear
+ * of the RX/TX ring buffers which overlay the vector table offsets.
+ * See v9938.S. */
+.equ VDP_ROW, 0x190
+.equ VDP_COL, 0x191
+.equ VDP_MODE, 0x192
+
     .org 0x00000000
 
 TXRDYA_IV: .ds.l 1, SSP_INIT
@@ -99,6 +106,11 @@ INIT_RESET:
     moveb #3, %fp@(IMR_IMAGE)
     moveb #64, (DUART_IVR).w
     moveb #CRA_ENABLE_RX, (DUART_CRA).w
+
+.ifdef V9938
+    bsr VDP_INIT
+.endif
+
     movew #0x2000, %sr
 
     /* loop */
@@ -140,6 +152,20 @@ COMMAND_LOOP_3:
     bras COMMAND_LOOP
 
 COMMAND_LOOP_4:
+.ifdef V9938
+    cmpib #'g', %d0
+    bnes COMMAND_LOOP_5
+    bsrw VDP_DEMO
+    braw COMMAND_LOOP
+
+COMMAND_LOOP_5:
+    cmpib #'t', %d0
+    bnes COMMAND_LOOP_6
+    bsrw VDP_INIT
+    braw COMMAND_LOOP
+
+COMMAND_LOOP_6:
+.endif
     cmpib #'?', %d0
     bnes COMMAND_LOOP
     moveaw #MENU_STR, %a2
@@ -151,6 +177,10 @@ MENU_STR:
     .ascii "F ADRS VALUE COUNT - Fill Memory\r\n"
     .ascii "J ADRS             - JSR To Adrs\r\n"
     .ascii "S2xxx              - Download Hex Record\r\n"
+.ifdef V9938
+    .ascii "G                  - Graphics Demo\r\n"
+    .ascii "T                  - Text Mode\r\n"
+.endif
     .ascii "?                  - Menu\r\n\0"
 HEADER:
     .asciz "Mini 68008 BIOS\r\n"
@@ -229,6 +259,9 @@ TX_INT_X:
     rts
 
 PUTC:
+.ifdef V9938
+    bsrw VDP_PUTC_RAW
+.endif
     movew %fp@(TXTOP),%d1
     movew %d1,%d0
     addqw #1,%d1
@@ -466,5 +499,20 @@ BIOS_CALL_TABLE:
     .ds.l 1,PRINT_HEX
     .ds.l 1,ENABLE_ISR
     .ds.l 1,DISABLE_ISR
+.ifdef V9938
+    .ds.l 1,VDP_SETMODE
+    .ds.l 1,VDP_CLS
+    .ds.l 1,VDP_PSET
+    .ds.l 1,VDP_LINE
+    .ds.l 1,VDP_BOX
+    .ds.l 1,VDP_SETPAL
+    .ds.l 1,VDP_SPRPAT
+    .ds.l 1,VDP_SPRSET
+    .ds.l 1,VDP_SPRHIDE
+.endif
+
+.ifdef V9938
+.include "v9938.S"
+.endif
 
 

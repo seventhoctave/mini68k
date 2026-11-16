@@ -1,0 +1,17 @@
+services:
+  dev:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    working_dir: /work
+    stdin_open: true
+    tty: true
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp=unconfined
+    environment:
+      CARGO_TARGET_DIR: /work/target
+    volumes:
+      - .:/work
