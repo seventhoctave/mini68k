@@ -26,7 +26,8 @@ use, not cycle-exact emulation.
   and sprites through the same `TRAP #0` API, and a `G` graphics demo in the
   monitor. The emulator models each chip's screen modes, sprites, timing and
   interrupts, plus the V9938's command engine.
-- The v2 KiCad board itself is still to be drawn; see
+- v2 hardware is a 100x100 system board with a VDP bus on its bottom edge,
+  plus two plug-in VDP boards (V9938 or TMS9918A, one fitted at a time); see
   [hw/mini68k-v2/NOTES.md](hw/mini68k-v2/NOTES.md)
 
 ## Quick start

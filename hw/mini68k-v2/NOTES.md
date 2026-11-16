@@ -1,110 +1,106 @@
-# mini68k v2 — V9938 video revision
+# mini68k v2: system board + plug-in VDP boards
 
-This directory is a placeholder for the v2 KiCad project. The KiCad
-files themselves must be created in the GUI — copy `hw/mini68k/` as
-the starting point and apply the changes below.
+v2 is three KiCad projects:
 
-## Starting point
-1. In KiCad, open `hw/mini68k/mini68k.kicad_pro` and "Save As" into
-   this directory as `mini68k-v2.kicad_pro`. Do not edit v1 in place.
-2. Grow the board outline from 100×100 to ~100×160 (Eurocard) to make
-   room for the V9938 subcircuit.
+| Project | What it is |
+|---------|------------|
+| `hw/mini68k-v2/` | The system board: the 100x100 v1 board with the VDP bus added |
+| `hw/vdp-v9938/` | VDP board with a Yamaha V9938 and 128 KB VRAM, RGB + composite out |
+| `hw/vdp-tms9918a/` | VDP board with a TI TMS9918A and 16 KB VRAM, composite out |
 
-## New parts
-| Ref | Part                         | Package       | Notes |
-|-----|------------------------------|---------------|-------|
-| U?  | Yamaha V9938                 | SDIP-64       | MSX2 VDP |
-| U?  | µPD41464 ×2                  | DIP-18        | 64K×4 DRAM = 128 KB VRAM |
-| U?  | 74HC00 (or 74HC139)          | DIP-14 / 16   | A14 qualification of UARTCS |
-| X?  | 21.47727 MHz crystal         | HC-49         | VDP dot-clock |
-| C?  | 22 pF ×2                     | 0805 or disc  | Xtal load caps |
-| C?  | 0.1 µF ×~6                   | 0805          | Decoupling on V9938 + VRAMs |
-| C?  | 10 µF                        | tantalum      | Bulk on V9938 rail |
-| R?  | 75 Ω ×3                      |               | R/G/B termination |
-| C?  | 10 µF ×3                     |               | R/G/B DC-blocking |
-| J?  | DE-15 VGA receptacle         | through-hole  | Video out |
+You fit one VDP board at a time. Each plugs onto the system board's bottom
+edge: right-angle sockets on the VDP board mate with right-angle headers on
+the system board, and the two boards end up coplanar. Build the BIOS to match
+the fitted board (`make -C bios V9938=1` or `TMS9918=1`).
 
-## New schematic sheet: video.kicad_sch
+## System board changes (from the 100x100 v1 board)
 
-### Address decode qualification
-Disconnect v1 GAL `UARTCS` from `U7` `/CS`. Route it through a 1-of-2
-split qualified by A14:
+- **A14 into the GAL:** GAL U5 pin 11 was tied to GND. It now takes A14.
+  `hw/gal/glue-v2.pld` qualifies `UARTCS` with `/A14`, so the DUART only
+  answers at `$18000-$1BFFF`. The v1 equations in `glue.pld` are unchanged.
+- **J8 control header:** a 7-pin right-angle header on the bottom edge,
+  right of J7, carrying DS, R/W, FC1, RESET, DTACK, VCC and GND (pin 1 = DS,
+  at the right). J6 (A0-A19) and J7 (DB0-DB7) are unchanged, but the bus now
+  also feeds the VDP boards.
+- **Mounting hole:** the bottom-right hole was removed to make room for J8.
+- **Outline:** trimmed to exactly 100.0 x 100.0 mm (it was 100.33 x 100.33),
+  centred where it was: x 89.065-189.065, y 63.665-163.665. The VDP boards
+  use the same X span.
+- **Re-routed:** the board was fully re-routed with Freerouting. The original
+  v1 GND/VCC pours were fragmented (19 disconnected islands in its own DRC);
+  power now has 0.5 mm tracks plus the pours.
 
-```
-GAL UARTCS ──┐
-             ├── NAND/decode ──► /UART_CS_N  (A14 = 0)  → U7 /CS
-A14 ─────────┘                └► /VDP_CS_N   (A14 = 1)  → V9938 gating
-```
+The VDP has no interrupt on the bus. `/INT` stays unconnected, as the polled
+BIOS and the emulator default expect.
 
-Minimal discrete version using 74HC00 quad NAND:
-- `UART_CS_N  = NOT ( NOT UARTCS  AND  NOT A14 )`
-- `VDP_CS_N   = NOT ( NOT UARTCS  AND  A14       )`
+## VDP board design (both boards)
 
-or equivalently use half a 74HC139 enabled by UARTCS with A14 as the
-select.
+- **Select:** a 74HC138 decodes `/VDP_CS` = A16 * A15 * A14 with /DS and
+  /FC1 low. These are the GAL's DUART terms with A14 = 1, so the VDP sits at
+  `$1C000`.
+- **Strobes:** a 74HC139 makes `/CSW` (R/W = 0) and `/CSR` (R/W = 1) from
+  `/VDP_CS`.
+- **DTACK:** a 74HC125 pulls DTACK low while `/VDP_CS` is active. The system
+  board's RN1 pulls it up.
+- **Register mode lines:** MODE0 is driven by A1 and MODE1 by A2 (V9938); MODE
+  is driven by A1 (TMS9918A).
+- **Bus timing:** neither VDP has a `/WAIT` pin. The V9938 data book's pin
+  table (p.114) has `*VDS` on pin 4; `/WAIT` arrived with the V9938's
+  successor, the V9958. DTACK is therefore immediate. The V9938 accepts
+  strobes of 186 ns to 2 us (p.121). The BIOS spaces VDP port accesses in
+  software: `VDP_WAIT` in `bios/v9938.S` and `TMS_WAIT` in `bios/tms9918.S`.
 
-### V9938 wiring
-- `D0..D7`  ← CPU data bus
-- `MODE0`   ← A1   (CPU A1, because 68008 word-aligned register addresses
-                   land even bytes at A0=0)
-- `MODE1`   ← A2
-- `/CSR`    ← `VDP_CS_N` OR NOT `R/W`      (read strobe when R/W=1)
-- `/CSW`    ← `VDP_CS_N` OR `R/W`          (write strobe when R/W=0)
-- `/RESET`  ← system `/RESET`
-- `/INT`    ← leave **unconnected** in v1 (polling-only driver)
-- `/WAIT`   ← wire into the DTACK path:
-             `DTACK_N = UART_DTACK  AND  (VDP_CS_N  OR  VDP_WAIT_N)`
-             Fallback jumper "WAIT_MODE": if V9938 `/WAIT` proves fussy,
-             short it out and insert 1–2 fixed wait cycles via a small
-             74HC161 counter clocked from CPU CLK, enabled by VDP_CS_N.
-- `XTAL1`/`XTAL2` ← 21.47727 MHz crystal + 22 pF caps to GND
-- `VDD` ← 5 V, decoupled
+### V9938 board
 
-### VRAM (2× µPD41464)
-Wire strictly per V9938 datasheet section 3 (VRAM connection). The CPU
-bus does not touch these parts — the VDP drives RAS/CAS/RAD/WE/OE
-directly. Place < 1 inch from U?(V9938).
+- **VRAM:** 4x uPD41464 (64Kx4), 128 KB. The pinout is from the NEC data
+  sheet in `hw/datasheets/`.
+  - DRAM A0-A7 are driven by AD0-AD7.
+  - Each chip's I/O1-4 connect to the RD bus, which carries data both ways
+    (the V9938 writes on RD0-7, p.124).
+  - `/CAS0` selects bank 0 and `/CAS1` bank 1.
+  - `/OE` is tied low, since the V9938 does early-write cycles.
+- **Footprint:** the V9938 is a 64-pin shrink DIP (1.778 mm pitch, 19.05 mm
+  rows, p.134). Its footprint is in `hw/vdp-lib/vdp.pretty`.
+- **Crystal:** 21.47727 MHz, connected directly to XTAL1/XTAL2 as in the
+  data book's example (p.113). The two load-capacitor footprints are fitted
+  DNP.
+- **RGB out:** R, G and B each get a 470 R load (the spec is given into
+  470 R, p.127), then a 2N3904 emitter follower, then a 75 R series resistor
+  to the DE-15. CSYNC goes through the same kind of follower with 100 R to
+  DE-15 pin 13. Signal levels: 15 kHz RGB, so use a CRT or a scandoubler.
+- **Composite out:** VIDEO goes through the same kind of buffer to the J4
+  2-pin header (signal, GND), for wiring to a panel RCA jack.
+- **Light pen:** `*LPS` and `*LPD` have 10 k pull-ups.
 
-### Video output
-- V9938 pins `R`, `G`, `B` → 10 µF series → 75 Ω termination → DE-15
-  pins 1, 2, 3
-- V9938 composite sync (`CSYNC` / `HSYNC` pin per your part revision)
-  → DE-15 pin 13; tie DE-15 pin 14 to same csync or leave NC
-- DE-15 pin 5, 6, 7, 8, 10 → GND
-- DE-15 shell → chassis / GND
-- Silkscreen label: **"15 kHz — CRT or scandoubler required"**
+### TMS9918A board
 
-## No GAL change
-`hw/gal/glue.pld` is intentionally untouched. All v2 decode changes
-live in discrete 74-series logic on the new schematic sheet, so the
-existing GAL fuse map and programming flow are unaffected.
+- **VRAM:** 8x 4164 (64Kx1, +5 V) with A7 tied low, giving 16 KB. Wiring
+  follows the TI manual, table 3-1, 16K column:
+  - DRAM A0..A6 are driven by AD7..AD1.
+  - Chip k has D driven by ADk and Q driving RDk.
+  - TI numbers bits MSB-first (CD0, AD0 and RD0 are the MSBs), so CPU DB7
+    goes to CD0.
+- **Crystal:** 10.738635 MHz, with DNP load-capacitor footprints.
+- **Composite out:** COMVID has a 330 R pull-down (manual fig. 3-3), then an
+  emitter follower and 75 R to the J4 header.
+- **EXTVDP:** 10 k to GND. It is the cascade input and is unused here.
 
-## Alternative VDP: TMS9918A
-The VDP slot can hold a TI TMS9918A instead of the V9938. Only one is
-fitted at a time; the BIOS is built for one or the other.
+## Check before fabrication
 
-| Ref | Part                         | Package       | Notes |
-|-----|------------------------------|---------------|-------|
-| U?  | TI TMS9918A                  | DIP-40        | NTSC composite out |
-| U?  | TMS4416 ×2 (or 4116 ×8)      | DIP-18/16     | 16 KB VRAM |
-| X?  | 10.738635 MHz crystal        | HC-49         | VDP clock |
-| J?  | RCA jack                     |               | composite video |
+- **Mating:** check the right-angle header/socket mating gap and height with
+  the actual parts. J6 is on the system board's back side, so the VDP board's
+  J1 socket is on its back side too.
+- **Video levels:** check the buffer values (series R, emitter R, AC
+  coupling) against your monitor or scandoubler. They follow the data books'
+  example topology but are untested.
+- **DE-15:** check the footprint's edge position on the V9938 board.
+- **Pacing:** check `VDP_WAIT_LOOPS` and `TMS_WAIT_LOOPS` on real hardware.
+- **DRC:** both VDP boards route completely with no clearance errors. The
+  remaining DRC items are silkscreen, a few single-spoke thermals, and the
+  intentional end-to-end courtyard overlap of J2 and J3.
 
-- Same `VDP_CS_N` qualification as above. `/CSR` and `/CSW` gate the
-  same way.
-- `MODE` ← A1 (data at `$1C000`, control/status at `$1C002`).
-- `/INT` is left unconnected (polled driver).
-- The TMS9918A has **no `/WAIT`**. Tie the DTACK contribution from the VDP
-  select to "ready" (or keep the WAIT_MODE fixed-wait fallback). The BIOS
-  spaces its VRAM accesses in software (`TMS_WAIT` in `bios/tms9918.S`).
-- VRAM is wired per the TMS9918A data manual. The CPU bus never touches it.
-- The video output is composite NTSC, not RGB. A TMS9928A gives Y/R-Y/B-Y,
-  and a TMS9929A is the PAL part; the BIOS works on either, but the
-  emulator only models the 9918A's NTSC timing.
+## Regenerating the VDP boards
 
-## BIOS coupling
-Build v2 ROMs with `make V9938=1` or `make TMS9918=1` in `bios/`, to
-match the fitted VDP. Both drivers use the same addresses. The V9938 driver sits
-at short-address base `0xC000` → `$FC000` effective → A16=A15=A14=1,
-which only decodes to the VDP on v2 hardware. Building `V9938=1` and
-burning into a v1 board will corrupt the DUART — do not do this.
+The VDP boards are generated by `hw/tools/kicad/generate_vdp.py` from one
+netlist, then autorouted; see `hw/tools/kicad/README.md`. Manual edits in
+KiCad are fine, but re-running the generator overwrites them.
