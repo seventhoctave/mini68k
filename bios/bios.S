@@ -42,9 +42,9 @@
 .equ BUFR_SIZE, 128
 .equ BUFR_SIZE_MASK, BUFR_SIZE - 1
 
-/* V9938 console state: fp-relative slots above ISR_IMAGE (0x18D), clear
+/* VDP console state (V9938 or TMS9918A): fp-relative slots above ISR_IMAGE (0x18D), clear
  * of the RX/TX ring buffers which overlay the vector table offsets.
- * See v9938.S. */
+ * See v9938.S / tms9918.S. */
 .equ VDP_ROW, 0x190
 .equ VDP_COL, 0x191
 .equ VDP_MODE, 0x192
@@ -107,7 +107,7 @@ INIT_RESET:
     moveb #64, (DUART_IVR).w
     moveb #CRA_ENABLE_RX, (DUART_CRA).w
 
-.ifdef V9938
+.ifdef HAVE_VDP
     bsr VDP_INIT
 .endif
 
@@ -152,7 +152,7 @@ COMMAND_LOOP_3:
     bras COMMAND_LOOP
 
 COMMAND_LOOP_4:
-.ifdef V9938
+.ifdef HAVE_VDP
     cmpib #'g', %d0
     bnes COMMAND_LOOP_5
     bsrw VDP_DEMO
@@ -177,7 +177,7 @@ MENU_STR:
     .ascii "F ADRS VALUE COUNT - Fill Memory\r\n"
     .ascii "J ADRS             - JSR To Adrs\r\n"
     .ascii "S2xxx              - Download Hex Record\r\n"
-.ifdef V9938
+.ifdef HAVE_VDP
     .ascii "G                  - Graphics Demo\r\n"
     .ascii "T                  - Text Mode\r\n"
 .endif
@@ -259,7 +259,7 @@ TX_INT_X:
     rts
 
 PUTC:
-.ifdef V9938
+.ifdef HAVE_VDP
     bsrw VDP_PUTC_RAW
 .endif
     movew %fp@(TXTOP),%d1
@@ -499,7 +499,7 @@ BIOS_CALL_TABLE:
     .ds.l 1,PRINT_HEX
     .ds.l 1,ENABLE_ISR
     .ds.l 1,DISABLE_ISR
-.ifdef V9938
+.ifdef HAVE_VDP
     .ds.l 1,VDP_SETMODE
     .ds.l 1,VDP_CLS
     .ds.l 1,VDP_PSET
@@ -512,7 +512,13 @@ BIOS_CALL_TABLE:
 .endif
 
 .ifdef V9938
+.ifdef TMS9918
+.error "V9938 and TMS9918 are mutually exclusive: only one VDP can be fitted"
+.endif
 .include "v9938.S"
+.endif
+.ifdef TMS9918
+.include "tms9918.S"
 .endif
 
 

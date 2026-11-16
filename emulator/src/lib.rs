@@ -2,6 +2,7 @@ pub mod cpu;
 pub mod duart68681;
 pub mod machine;
 pub mod rom;
+pub mod tms9918a;
 pub mod v9938;
 
 use machine::MachineState;

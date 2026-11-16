@@ -1,14 +1,16 @@
-//! The V9938 /INT pin reaches the CPU only when the machine is configured
+//! The VDP /INT pin (V9938 or TMS9918A) reaches the CPU only when the machine is configured
 //! to wire it (`--vdp-irq`); the v2 board as built leaves it unconnected.
 
-use mini68k_emu::machine::{Machine, MachineConfig, MachineModel};
+use mini68k_emu::machine::{Machine, MachineConfig, MachineModel, VdpChip};
 use std::sync::Mutex;
 
 /// Musashi is a single global CPU, so machines must not run concurrently.
 static CPU_LOCK: Mutex<()> = Mutex::new(());
 
 /// Hand-assembled 68000 program:
-///   reset:   move.b #$60,($C002).w   ; R1 = display on + IE0
+/// Both chips keep display-enable and the vblank interrupt enable in R1
+/// bits 6 and 5, and clear the frame flag on a status read at $C002.
+///   reset:   move.b #$60,($C002).w   ; R1 = display on + vblank IE
 ///            move.b #$81,($C002).w
 ///            move.w #$2000,sr        ; unmask interrupts
 ///   loop:    bra.s  loop
@@ -43,13 +45,14 @@ fn vblank_counter_rom() -> Vec<u8> {
     rom
 }
 
-fn count_vblanks(vdp_irq_level: Option<u32>, frames: u64) -> u8 {
+fn count_vblanks(chip: VdpChip, vdp_irq_level: Option<u32>, frames: u64) -> u8 {
     let _guard = CPU_LOCK
         .lock()
         .unwrap_or_else(|poisoned| poisoned.into_inner());
     let mut config = MachineConfig::new(vblank_counter_rom());
     config.machine_model = MachineModel::V2;
     config.vdp_irq_level = vdp_irq_level;
+    config.vdp_chip = chip;
     let mut machine = Machine::new(config);
     let cycles_per_frame = config_cycles_per_frame(&machine);
     machine.run_for_cycles(cycles_per_frame * frames + cycles_per_frame / 2);
@@ -63,10 +66,14 @@ fn config_cycles_per_frame(machine: &Machine) -> u64 {
 
 #[test]
 fn vblank_interrupt_is_delivered_once_per_frame_when_wired() {
-    assert_eq!(count_vblanks(Some(5), 3), 3);
+    for chip in [VdpChip::V9938, VdpChip::Tms9918a] {
+        assert_eq!(count_vblanks(chip, Some(5), 3), 3, "{chip:?}");
+    }
 }
 
 #[test]
 fn vblank_interrupt_is_not_delivered_when_int_is_unconnected() {
-    assert_eq!(count_vblanks(None, 3), 0);
+    for chip in [VdpChip::V9938, VdpChip::Tms9918a] {
+        assert_eq!(count_vblanks(chip, None, 3), 0, "{chip:?}");
+    }
 }

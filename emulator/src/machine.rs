@@ -1,5 +1,6 @@
 use crate::cpu;
 use crate::duart68681::Duart68681;
+use crate::tms9918a::Tms9918a;
 use crate::v9938::{VideoFrame, DEFAULT_CPU_HZ, V9938};
 use crate::{clear_current_machine, install_current_machine};
 use std::cell::UnsafeCell;
@@ -27,6 +28,107 @@ pub enum MachineModel {
     V2,
 }
 
+/// Which video processor sits in the v2 VDP slot. Only one can be fitted.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum VdpChip {
+    #[default]
+    V9938,
+    Tms9918a,
+}
+
+/// The fitted video processor.
+#[derive(Debug, Clone)]
+pub enum Vdp {
+    V9938(Box<V9938>),
+    Tms9918a(Box<Tms9918a>),
+}
+
+impl Vdp {
+    pub fn new(chip: VdpChip, cpu_hz: u64) -> Self {
+        match chip {
+            VdpChip::V9938 => Vdp::V9938(Box::new(V9938::with_cpu_hz(cpu_hz))),
+            VdpChip::Tms9918a => Vdp::Tms9918a(Box::new(Tms9918a::with_cpu_hz(cpu_hz))),
+        }
+    }
+
+    pub fn chip(&self) -> VdpChip {
+        match self {
+            Vdp::V9938(_) => VdpChip::V9938,
+            Vdp::Tms9918a(_) => VdpChip::Tms9918a,
+        }
+    }
+
+    pub fn read_port(&mut self, port: u8) -> u8 {
+        match self {
+            Vdp::V9938(vdp) => vdp.read_port(port),
+            Vdp::Tms9918a(vdp) => vdp.read_port(port),
+        }
+    }
+
+    pub fn write_port(&mut self, port: u8, value: u8) {
+        match self {
+            Vdp::V9938(vdp) => vdp.write_port(port, value),
+            Vdp::Tms9918a(vdp) => vdp.write_port(port, value),
+        }
+    }
+
+    pub fn tick(&mut self, cpu_cycles: u64) {
+        match self {
+            Vdp::V9938(vdp) => vdp.tick(cpu_cycles),
+            Vdp::Tms9918a(vdp) => vdp.tick(cpu_cycles),
+        }
+    }
+
+    pub fn reset(&mut self) {
+        match self {
+            Vdp::V9938(vdp) => vdp.reset(),
+            Vdp::Tms9918a(vdp) => vdp.reset(),
+        }
+    }
+
+    pub fn irq_asserted(&self) -> bool {
+        match self {
+            Vdp::V9938(vdp) => vdp.irq_asserted(),
+            Vdp::Tms9918a(vdp) => vdp.irq_asserted(),
+        }
+    }
+
+    pub fn frame(&self) -> VideoFrame {
+        match self {
+            Vdp::V9938(vdp) => vdp.frame(),
+            Vdp::Tms9918a(vdp) => vdp.frame(),
+        }
+    }
+
+    pub fn cpu_cycles_per_line(&self) -> f64 {
+        match self {
+            Vdp::V9938(vdp) => vdp.cpu_cycles_per_line(),
+            Vdp::Tms9918a(vdp) => vdp.cpu_cycles_per_line(),
+        }
+    }
+
+    pub fn total_lines(&self) -> u32 {
+        match self {
+            Vdp::V9938(vdp) => vdp.total_lines(),
+            Vdp::Tms9918a(vdp) => vdp.total_lines(),
+        }
+    }
+
+    pub fn as_v9938(&self) -> Option<&V9938> {
+        match self {
+            Vdp::V9938(vdp) => Some(vdp),
+            Vdp::Tms9918a(_) => None,
+        }
+    }
+
+    pub fn as_tms9918a(&self) -> Option<&Tms9918a> {
+        match self {
+            Vdp::Tms9918a(vdp) => Some(vdp),
+            Vdp::V9938(_) => None,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VideoOutput {
     Headless,
@@ -42,9 +144,11 @@ pub struct MachineConfig {
     pub start_stdin_thread: bool,
     pub machine_model: MachineModel,
     pub video_output: VideoOutput,
-    /// CPU clock, used to pace V9938 video timing.
+    /// Video processor fitted to a v2 machine (ignored for v1).
+    pub vdp_chip: VdpChip,
+    /// CPU clock, used to pace video timing.
     pub cpu_hz: u64,
-    /// 68k interrupt level wired to the V9938 /INT pin. `None` matches the
+    /// 68k interrupt level wired to the VDP /INT pin. `None` matches the
     /// v2 board, where /INT is left unconnected.
     pub vdp_irq_level: Option<u32>,
 }
@@ -61,6 +165,7 @@ impl MachineConfig {
             video_output: VideoOutput::Headless,
             cpu_hz: DEFAULT_CPU_CLOCK_HZ,
             vdp_irq_level: None,
+            vdp_chip: VdpChip::default(),
         }
     }
 }
@@ -71,7 +176,7 @@ pub(crate) struct MachineState {
     ram: Vec<u8>,
     model: MachineModel,
     duart: Duart68681,
-    vdp: Option<V9938>,
+    vdp: Option<Vdp>,
     vdp_irq_level: Option<u32>,
     current_fc: u8,
     trace: bool,
@@ -79,6 +184,8 @@ pub(crate) struct MachineState {
     booted: bool,
     total_cycles: u64,
     pending_input: VecDeque<u8>,
+    /// Keystrokes held back until the monitor prints its first prompt.
+    input_at_prompt: Option<String>,
     stdin_rx: Option<Receiver<u8>>,
     output: Vec<u8>,
 }
@@ -104,7 +211,7 @@ impl Machine {
                 model: config.machine_model,
                 duart: Duart68681::new(),
                 vdp: (config.machine_model == MachineModel::V2)
-                    .then(|| V9938::with_cpu_hz(config.cpu_hz)),
+                    .then(|| Vdp::new(config.vdp_chip, config.cpu_hz)),
                 vdp_irq_level: config.vdp_irq_level.filter(|level| (1..=7).contains(level)),
                 current_fc: 0,
                 trace: config.trace,
@@ -112,6 +219,7 @@ impl Machine {
                 booted: false,
                 total_cycles: 0,
                 pending_input: VecDeque::new(),
+                input_at_prompt: None,
                 stdin_rx,
                 output: Vec::new(),
             }),
@@ -189,6 +297,12 @@ impl Machine {
         self.state_mut().enqueue_input_text(text);
     }
 
+    /// Type `text` once the monitor shows its `>` prompt. Input sent before
+    /// the BIOS has set up the DUART is lost, as on the real board.
+    pub fn type_at_prompt(&mut self, text: &str) {
+        self.state_mut().input_at_prompt = Some(text.to_string());
+    }
+
     pub fn output_as_string(&self) -> String {
         self.state_ref().output_as_string()
     }
@@ -197,8 +311,35 @@ impl Machine {
         self.state_ref().video_frame()
     }
 
-    pub fn vdp(&self) -> Option<&V9938> {
+    pub fn vdp(&self) -> Option<&Vdp> {
         self.state_ref().vdp.as_ref()
+    }
+
+    pub fn v9938(&self) -> Option<&V9938> {
+        self.vdp().and_then(Vdp::as_v9938)
+    }
+
+    pub fn tms9918a(&self) -> Option<&Tms9918a> {
+        self.vdp().and_then(Vdp::as_tms9918a)
+    }
+
+    /// Copy bytes into RAM, as a monitor download would. Fails if any
+    /// address is outside the RAM window or beyond the fitted RAM.
+    pub fn load_ram(&mut self, address: u32, data: &[u8]) -> Result<(), String> {
+        let state = self.state_mut();
+        for (index, byte) in data.iter().enumerate() {
+            let target = address.wrapping_add(index as u32);
+            let physical = MachineState::physical_address(target);
+            if physical & REGION_MASK != REGION_RAM {
+                return Err(format!("address {target:#07x} is not in RAM"));
+            }
+            let cell = state
+                .ram
+                .get_mut((physical & 0x7fff) as usize)
+                .ok_or_else(|| format!("address {target:#07x} is beyond the fitted RAM"))?;
+            *cell = *byte;
+        }
+        Ok(())
     }
 
     /// Read ROM or RAM without bus side effects (I/O reads return 0xff).
@@ -380,7 +521,7 @@ impl MachineState {
     }
 
     fn vdp_irq_asserted(&self) -> bool {
-        self.vdp.as_ref().is_some_and(V9938::irq_asserted)
+        self.vdp.as_ref().is_some_and(Vdp::irq_asserted)
     }
 
     pub(crate) fn output_as_string(&self) -> String {
@@ -388,7 +529,7 @@ impl MachineState {
     }
 
     pub(crate) fn video_frame(&self) -> Option<VideoFrame> {
-        self.vdp.as_ref().map(V9938::frame)
+        self.vdp.as_ref().map(Vdp::frame)
     }
 
     pub(crate) fn enqueue_input_text(&mut self, text: &str) {
@@ -402,6 +543,11 @@ impl MachineState {
     }
 
     pub(crate) fn pump_console_input(&mut self) {
+        if self.output.last() == Some(&b'>') {
+            if let Some(text) = self.input_at_prompt.take() {
+                self.enqueue_input_text(&text);
+            }
+        }
         loop {
             let Some(rx) = self.stdin_rx.as_ref() else {
                 break;
