@@ -4,3 +4,5 @@ bios.lst
 bios.o
 *.bak
 target/
+demos/*.o
+demos/*.s28

@@ -79,8 +79,32 @@ directly. Place < 1 inch from U?(V9938).
 live in discrete 74-series logic on the new schematic sheet, so the
 existing GAL fuse map and programming flow are unaffected.
 
+## Alternative VDP: TMS9918A
+The VDP slot can hold a TI TMS9918A instead of the V9938. Only one is
+fitted at a time; the BIOS is built for one or the other.
+
+| Ref | Part                         | Package       | Notes |
+|-----|------------------------------|---------------|-------|
+| U?  | TI TMS9918A                  | DIP-40        | NTSC composite out |
+| U?  | TMS4416 ×2 (or 4116 ×8)      | DIP-18/16     | 16 KB VRAM |
+| X?  | 10.738635 MHz crystal        | HC-49         | VDP clock |
+| J?  | RCA jack                     |               | composite video |
+
+- Same `VDP_CS_N` qualification as above. `/CSR` and `/CSW` gate the
+  same way.
+- `MODE` ← A1 (data at `$1C000`, control/status at `$1C002`).
+- `/INT` is left unconnected (polled driver).
+- The TMS9918A has **no `/WAIT`**. Tie the DTACK contribution from the VDP
+  select to "ready" (or keep the WAIT_MODE fixed-wait fallback). The BIOS
+  spaces its VRAM accesses in software (`TMS_WAIT` in `bios/tms9918.S`).
+- VRAM is wired per the TMS9918A data manual. The CPU bus never touches it.
+- The video output is composite NTSC, not RGB. A TMS9928A gives Y/R-Y/B-Y,
+  and a TMS9929A is the PAL part; the BIOS works on either, but the
+  emulator only models the 9918A's NTSC timing.
+
 ## BIOS coupling
-Build v2 ROMs with `make V9938=1` in `bios/`. The V9938 driver sits
+Build v2 ROMs with `make V9938=1` or `make TMS9918=1` in `bios/`, to
+match the fitted VDP. Both drivers use the same addresses. The V9938 driver sits
 at short-address base `0xC000` → `$FC000` effective → A16=A15=A14=1,
 which only decodes to the VDP on v2 hardware. Building `V9938=1` and
 burning into a v1 board will corrupt the DUART — do not do this.
